@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <title>Juego de memoria</title>
+</head>
+<body>
+    <div x-data="juego()"  >
+        <h1 >
+            <span x-text="intentos"></span>
+            <span >Intentos</span>
+        </h1>
+
+        <div class="grid grid-cols-3 w-44">
+            <template x-for="(carta, index) in cartas" :key="index">                
+                    <div class="bg-amber-500 w-10 p-2 m-2"  @click="voltear(carta)">                        
+                        <button
+                       
+                        >
+                            <i x-bind:class="(carta.volteada ? carta.icon : '')"
+                               
+                            ></i>
+                        </button>                        
+                    </div>                
+            </template>
+        </div>        
+    </div>
+
+    <div id="dialogo" x-data="{show:true, message:''}" x-show="show" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+        >
+            <h1 x-text="message"></h1>
+        </div>        
+    <script>
+      
+        function juego() {
+            return {
+                cartas: [
+                    { icon: 'fa-solid fa-baseball-bat-ball', volteada: false, encontrada: false },
+                    { icon: 'fa-solid fa-baseball-bat-ball', volteada: false, encontrada: false },
+                    { icon: 'fa-solid fa-medal', volteada: false, encontrada: false },
+                    { icon: 'fa-solid fa-medal', volteada: false, encontrada: false },                     
+                    { icon: 'fa-solid fa-bicycle', volteada: false, encontrada: false },
+                    { icon: 'fa-solid fa-bicycle', volteada: false, encontrada: false },
+                      
+                ].sort(() => Math.random() - .5),
+                intentos:0,
+                voltear(carta) {
+                    if (carta.voltead ) {
+                        return;
+                    }
+
+
+                     carta.volteada = true ;
+
+                     if( this.cartasVolteadas.length == 2 )
+                     {
+                        this.intentos++;
+                        if (this.cartasVolteadas[0].icon ==  this.cartasVolteadas[1].icon )
+                        {
+                            this.mensaje("Encontraste una pareja!!");      
+                            this.cartasVolteadas.forEach(carta => carta.encontrada = true);
+                            if (this.cartasEnJuego.length == 0) {
+                                alert("Ganaste!!!");
+                                this.intentos = 0;
+                                this.baraja.forEach(carta => {carta.volteada = false; carta.encontrada = false});
+                            }                                       
+                        }
+                        else{
+
+                            setTimeout(() => {
+                                this.cartasVolteadas.forEach(carta => carta.volteada = false);                                
+                            }, 500);
+                        }
+                     }
+
+                     
+                },
+
+                get cartasVolteadas() {
+                    return this.cartas.filter(carta => (carta.volteada && !carta.encontrada));
+                },    
+
+                get cartasEnJuego(){
+                    return this.cartas.filter(carta => (!carta.encontrada));
+                }   ,
+
+                get baraja(){
+                    return this.cartas;
+                }   ,
+            
+                mensaje(msg)
+                {
+                    console.log(  msg );
+                    document.getElementById('dialogo')._x_dataStack[0].show = 1;
+                    document.getElementById('dialogo')._x_dataStack[0].message = msg;
+                    setInterval(() => {
+                        document.getElementById('dialogo')._x_dataStack[0].show = 0;
+                    }, 2500);
+                }       
+            }
+        };
+    </script>
+</body>
+</html>
